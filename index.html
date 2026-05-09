@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Book</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── HERO ── */
+    .hero {
+      max-width: 680px;
+      margin: 80px auto 0;
+      padding: 0 32px;
+      text-align: center;
+      animation: fadeUp 0.7s ease both;
+    }
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+    .hero-title {
+      font-size: clamp(40px, 7vw, 64px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+    .hero-subtitle {
+      font-size: 16px;
+      color: var(--ink-muted);
+      line-height: 1.7;
+      max-width: 440px;
+      margin: 0 auto 40px;
+    }
+    .hero-meta {
+      font-size: 12px;
+      color: var(--ink-faint);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── CHAPTER LIST ── */
+    .chapters-section {
+      max-width: 680px;
+      margin: 60px auto 120px;
+      padding: 0 32px;
+    }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 24px;
+    }
+    .chapter-item {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.15s;
+      animation: fadeUp 0.5s ease both;
+    }
+    .chapter-item:hover { padding-left: 8px; }
+    .chapter-item:hover .chapter-num { color: var(--gold); }
+    .chapter-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      color: var(--ink-faint);
+      min-width: 28px;
+      transition: color 0.15s;
+    }
+    .chapter-info { flex: 1; }
+    .chapter-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .chapter-words { font-size: 12px; color: var(--ink-faint); }
+    .chapter-arrow { color: var(--ink-faint); font-size: 18px; transition: transform 0.15s; }
+    .chapter-item:hover .chapter-arrow { transform: translateX(4px); color: var(--gold); }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--ink-faint);
+    }
+    .empty-state .glyph {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      display: block;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+    .empty-state p { font-size: 15px; }
+
+    /* ── READING VIEW ── */
+    #reading-view { display: none; }
+    .reading-header {
+      max-width: 640px;
+      margin: 60px auto 0;
+      padding: 0 32px;
+      animation: fadeUp 0.5s ease both;
+    }
+    .reading-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 12px;
+    }
+    .reading-title {
+      font-size: clamp(28px, 5vw, 46px);
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 32px;
+    }
+    .reading-body {
+      max-width: 640px;
+      margin: 0 auto 120px;
+      padding: 0 32px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1.85;
+      color: #1e1a16;
+      white-space: pre-wrap;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ink-faint);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      padding: 0;
+      margin-bottom: 28px;
+      transition: color 0.15s;
+    }
+    .back-btn:hover { color: var(--gold); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-logo" href="index.html">✦ <span id="header-book-title">My Book</span></a>
+  <a class="btn btn-outline" href="admin.html">Writer's Studio</a>
+</header>
+
+<!-- LIBRARY VIEW -->
+<div id="library-view">
+  <div class="hero">
+    <p class="hero-eyebrow">Now Reading</p>
+    <h1 class="hero-title serif" id="hero-title">My Book</h1>
+    <p class="hero-subtitle" id="hero-desc">A work currently being written. Published chapters appear below as they are released.</p>
+    <p class="hero-meta" id="hero-meta"></p>
+  </div>
+
+  <div class="deco-rule" style="max-width:680px;margin:48px auto 0;padding:0 32px;">
+    <span class="deco-rule-glyph">✦</span>
+  </div>
+
+  <div class="chapters-section">
+    <p class="section-label">Chapters</p>
+    <div id="chapter-list"></div>
+  </div>
+</div>
+
+<!-- READING VIEW -->
+<div id="reading-view">
+  <div class="reading-header">
+    <button class="back-btn" onclick="closeChapter()">← Back to library</button>
+    <p class="reading-eyebrow" id="reading-eyebrow">Chapter —</p>
+    <h1 class="reading-title serif" id="reading-title"></h1>
+  </div>
+  <div class="reading-body" id="reading-body"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'ebook_chapters';
+
+function getChapters() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+}
+
+function wordCount(text) {
+  if (!text) return '0 words';
+  const n = text.trim().split(/\s+/).filter(Boolean).length;
+  return n.toLocaleString() + ' words';
+}
+
+function getBookMeta() {
+  try { return JSON.parse(localStorage.getItem('ebook_meta')) || {}; } catch { return {}; }
+}
+
+function render() {
+  const meta = getBookMeta();
+  const title = meta.title || 'My Book';
+  const desc  = meta.desc  || 'A work currently being written. Published chapters appear below as they are released.';
+
+  document.title = title;
+  document.getElementById('header-book-title').textContent = title;
+  document.getElementById('hero-title').textContent = title;
+  document.getElementById('hero-desc').textContent = desc;
+
+  const chapters = getChapters().filter(c => c.published).sort((a,b) => a.order - b.order);
+  const heroMeta = document.getElementById('hero-meta');
+  heroMeta.textContent = chapters.length
+    ? chapters.length + ' chapter' + (chapters.length > 1 ? 's' : '') + ' published'
+    : 'No chapters yet';
+
+  const list = document.getElementById('chapter-list');
+
+  if (!chapters.length) {
+    list.innerHTML = `<div class="empty-state">
+      <span class="glyph">✦</span>
+      <p>No chapters have been published yet.<br>Check back soon.</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = chapters.map((ch, i) => `
+    <div class="chapter-item" onclick="openChapter('${ch.id}')" style="animation-delay:${i * 0.06}s">
+      <span class="chapter-num">${String(i + 1).padStart(2, '0')}</span>
+      <div class="chapter-info">
+        <div class="chapter-name">${esc(ch.title || 'Untitled')}</div>
+        <div class="chapter-words">${wordCount(ch.body)}</div>
+      </div>
+      <span class="chapter-arrow">→</span>
+    </div>
+  `).join('');
+}
+
+function openChapter(id) {
+  const chapters = getChapters();
+  const published = chapters.filter(c => c.published).sort((a,b) => a.order - b.order);
+  const ch = published.find(c => c.id === id);
+  if (!ch) return;
+
+  const idx = published.indexOf(ch);
+  document.getElementById('reading-eyebrow').textContent = 'Chapter ' + String(idx + 1).padStart(2, '0');
+  document.getElementById('reading-title').textContent = ch.title || 'Untitled';
+  document.getElementById('reading-body').textContent = ch.body || '';
+
+  document.getElementById('library-view').style.display = 'none';
+  document.getElementById('reading-view').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeChapter() {
+  document.getElementById('library-view').style.display = 'block';
+  document.getElementById('reading-view').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+render();
+</script>
+</body>
+</html>
