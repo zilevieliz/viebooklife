@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Writer's Studio</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── LOGIN ── */
+    .login-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+      padding: 40px 20px;
+    }
+    .login-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.5s ease both;
+    }
+    .login-glyph {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      color: var(--gold);
+      margin-bottom: 16px;
+      display: block;
+    }
+    .login-card h2 {
+      font-size: 26px;
+      font-weight: 300;
+      margin-bottom: 6px;
+    }
+    .login-card p {
+      font-size: 13px;
+      color: var(--ink-muted);
+      margin-bottom: 28px;
+    }
+    .login-card input { margin-bottom: 12px; text-align: center; letter-spacing: 0.1em; }
+    .login-error { font-size: 12px; color: var(--red-dim); margin-top: 8px; min-height: 16px; }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; }
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 70px);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--page-warm);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      gap: 6px;
+    }
+    .sidebar-section-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 0 8px;
+      margin-bottom: 6px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--ink-muted);
+      border: 1px solid transparent;
+      transition: all 0.12s;
+      gap: 8px;
+    }
+    .sidebar-item:hover { background: rgba(154,123,60,0.06); }
+    .sidebar-item.active {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--ink);
+    }
+    .sidebar-item-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pub-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ink-faint);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .pub-dot.live { background: var(--green-dim); }
+
+    .sidebar-divider { height: 1px; background: var(--border); margin: 10px 0; }
+    .sidebar-actions { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+    .sidebar-new-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px dashed var(--border-mid);
+      background: none;
+      font-size: 13px;
+      color: var(--ink-faint);
+      cursor: pointer;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      transition: all 0.15s;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-new-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* EDITOR */
+    .editor-pane {
+      display: flex;
+      flex-direction: column;
+      padding: 32px 40px;
+      gap: 20px;
+    }
+    .editor-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      color: var(--ink-faint);
+      text-align: center;
+      gap: 12px;
+    }
+    .editor-empty .glyph {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      opacity: 0.3;
+    }
+    .editor-empty p { font-size: 14px; }
+
+    .editor-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .editor-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .status-badge.draft { background: var(--page-warm); color: var(--ink-faint); border: 1px solid var(--border); }
+    .status-badge.published { background: rgba(44,92,58,0.1); color: var(--green-dim); border: 1px solid rgba(44,92,58,0.2); }
+
+    .chapter-title-input {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 300;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      padding: 8px 0;
+      background: none;
+      color: var(--ink);
+      letter-spacing: 0.01em;
+    }
+    .chapter-title-input:focus { border-bottom-color: var(--gold); }
+    .chapter-title-input::placeholder { color: var(--ink-faint); }
+
+    .chapter-body-input {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 300;
+      line-height: 1.85;
+      min-height: 380px;
+      border-color: var(--border);
+      color: #1e1a16;
+    }
+    .chapter-body-input::placeholder { color: var(--ink-faint); font-style: italic; }
+
+    .editor-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .word-count-label { font-size: 12px; color: var(--ink-faint); margin-left: auto; }
+
+    /* SETTINGS TAB */
+    .settings-pane { padding: 32px 40px; max-width: 560px; }
+    .settings-pane h2 { font-size: 26px; font-weight: 300; margin-bottom: 28px; }
+    .settings-group { margin-bottom: 24px; }
+    .settings-label { font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; letter-spacing: 0.04em; }
+    .settings-hint  { font-size: 11px; color: var(--ink-faint); margin-top: 4px; }
+    .settings-save  { margin-top: 32px; }
+
+    /* LOGOUT / SESSION */
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .writer-label { font-size: 12px; color: var(--ink-faint); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-logo" href="index.html">✦ <span>Writer's Studio</span></a>
+  <div class="header-right">
+    <span class="writer-label" id="writer-label" style="display:none">Signed in as Writer</span>
+    <button class="btn btn-ghost" id="logout-btn" style="display:none" onclick="doLogout()">Sign out</button>
+    <a class="btn btn-outline" href="index.html" target="_blank">↗ View public</a>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <span class="login-glyph">✦</span>
+    <h2 class="serif">Writer's Studio</h2>
+    <p>Enter your passphrase to continue</p>
+    <input type="password" id="pw-input" placeholder="Passphrase" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="btn btn-gold" style="width:100%" onclick="doLogin()">Enter</button>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <p class="sidebar-section-label">Chapters</p>
+      <div id="sidebar-chapter-list"></div>
+      <div class="sidebar-divider"></div>
+      <p class="sidebar-section-label">Settings</p>
+      <div class="sidebar-item" id="settings-nav" onclick="openSettings()">
+        <span class="sidebar-item-title">Book settings</span>
+        <span>⚙</span>
+      </div>
+      <div class="sidebar-actions">
+        <button class="sidebar-new-btn" onclick="newChapter()">＋ New chapter</button>
+      </div>
+    </aside>
+
+    <!-- MAIN EDITOR -->
+    <main id="main-area">
+      <!-- Empty state -->
+      <div class="editor-pane" id="empty-state-pane" style="flex:1;display:flex;">
+        <div class="editor-empty">
+          <span class="glyph">✦</span>
+          <p>Select a chapter from the sidebar,<br>or create a new one to begin writing.</p>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div class="editor-pane hidden" id="editor-pane">
+        <div class="editor-topbar">
+          <div class="editor-status">
+            <span class="status-badge" id="status-badge">Draft</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline" id="save-btn" onclick="saveChapter()">Save draft</button>
+            <button class="btn btn-success hidden" id="unpublish-btn" onclick="unpublishChapter()">Unpublish</button>
+            <button class="btn btn-gold" id="publish-btn" onclick="publishChapter()">Publish chapter</button>
+            <button class="btn btn-danger" onclick="deleteChapter()">Delete</button>
+          </div>
+        </div>
+
+        <input
+          class="chapter-title-input"
+          id="chapter-title"
+          type="text"
+          placeholder="Chapter title…"
+          oninput="markDirty()"
+        />
+
+        <textarea
+          class="chapter-body-input"
+          id="chapter-body"
+          placeholder="Begin writing your chapter here…"
+          oninput="markDirty(); updateWordCount()"
+        ></textarea>
+
+        <div class="editor-footer">
+          <button class="btn btn-outline" style="font-size:12px" onclick="moveChapter(-1)">↑ Move up</button>
+          <button class="btn btn-outline" style="font-size:12px" onclick="moveChapter(1)">↓ Move down</button>
+          <span class="word-count-label" id="word-count-label">0 words</span>
+        </div>
+      </div>
+
+      <!-- Settings pane -->
+      <div class="settings-pane hidden" id="settings-pane">
+        <h2 class="serif">Book settings</h2>
+        <div class="settings-group">
+          <p class="settings-label">Book title</p>
+          <input type="text" id="setting-title" placeholder="My Book" />
+        </div>
+        <div class="settings-group">
+          <p class="settings-label">Description</p>
+          <textarea id="setting-desc" rows="3" placeholder="A short description shown on the public page…"></textarea>
+        </div>
+        <div class="settings-group">
+          <p class="settings-label">Change admin password</p>
+          <input type="password" id="setting-pw" placeholder="New password (leave blank to keep current)" />
+          <p class="settings-hint">Current password is stored in your browser only.</p>
+        </div>
+        <div class="settings-save">
+          <button class="btn btn-gold" onclick="saveSettings()">Save settings</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── CONSTANTS ── */
+const CHAPTERS_KEY = 'ebook_chapters';
+const META_KEY     = 'ebook_meta';
+const PW_KEY       = 'ebook_admin_pw';
+const SESSION_KEY  = 'ebook_session';
+const DEFAULT_PW   = 'admin123';
+
+/* ── STATE ── */
+let selectedId = null;
+let isDirty    = false;
+
+/* ── STORAGE HELPERS ── */
+function getChapters() {
+  try { return JSON.parse(localStorage.getItem(CHAPTERS_KEY)) || []; } catch { return []; }
+}
+function saveChapters(chs) {
+  localStorage.setItem(CHAPTERS_KEY, JSON.stringify(chs));
+}
+function getMeta() {
+  try { return JSON.parse(localStorage.getItem(META_KEY)) || {}; } catch { return {}; }
+}
+function saveMeta(m) { localStorage.setItem(META_KEY, JSON.stringify(m)); }
+function getAdminPw() { return localStorage.getItem(PW_KEY) || DEFAULT_PW; }
+
+/* ── AUTH ── */
+function doLogin() {
+  const val = document.getElementById('pw-input').value;
+  if (val === getAdminPw()) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('writer-label').style.display = 'inline';
+    document.getElementById('logout-btn').style.display = 'inline-flex';
+    loadDashboard();
+  } else {
+    document.getElementById('login-error').textContent = 'Incorrect passphrase. Try again.';
+    document.getElementById('pw-input').value = '';
+  }
+}
+function doLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+/* ── BOOT ── */
+(function boot() {
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('writer-label').style.display = 'inline';
+    document.getElementById('logout-btn').style.display = 'inline-flex';
+    loadDashboard();
+  }
+})();
+
+/* ── DASHBOARD ── */
+function loadDashboard() {
+  renderSidebar();
+  // Restore last selected chapter
+  const chs = getChapters();
+  if (chs.length && selectedId) {
+    openChapter(selectedId);
+  }
+}
+
+function renderSidebar() {
+  const chs = getChapters().sort((a,b) => a.order - b.order);
+  const list = document.getElementById('sidebar-chapter-list');
+  list.innerHTML = chs.length ? chs.map(ch => `
+    <div class="sidebar-item ${ch.id === selectedId ? 'active' : ''}" onclick="openChapter('${ch.id}')">
+      <span class="sidebar-item-title">${esc(ch.title || 'Untitled')}</span>
+      <span class="pub-dot ${ch.published ? 'live' : ''}"></span>
+    </div>
+  `).join('') : `<p style="font-size:12px;color:var(--ink-faint);padding:8px;text-align:center">No chapters yet</p>`;
+}
+
+/* ── CHAPTER CRUD ── */
+function newChapter() {
+  const chs = getChapters();
+  const id  = 'ch_' + Date.now();
+  chs.push({ id, title: '', body: '', published: false, order: chs.length });
+  saveChapters(chs);
+  openChapter(id);
+  renderSidebar();
+}
+
+function openChapter(id) {
+  if (isDirty && selectedId && selectedId !== id) {
+    if (!confirm('You have unsaved changes. Discard them?')) return;
+  }
+  selectedId = id;
+  isDirty = false;
+
+  const ch = getChapters().find(c => c.id === id);
+  if (!ch) return;
+
+  hideAllPanes();
+  document.getElementById('editor-pane').classList.remove('hidden');
+  document.getElementById('settings-nav').classList.remove('active');
+
+  document.getElementById('chapter-title').value = ch.title || '';
+  document.getElementById('chapter-body').value  = ch.body  || '';
+  updateWordCount();
+  updateStatusBadge(ch.published);
+  renderSidebar();
+}
+
+function hideAllPanes() {
+  document.getElementById('empty-state-pane').style.display = 'none';
+  document.getElementById('editor-pane').classList.add('hidden');
+  document.getElementById('settings-pane').classList.add('hidden');
+}
+
+function getCurrentChapter() {
+  return getChapters().find(c => c.id === selectedId);
+}
+
+function saveChapter() {
+  if (!selectedId) return;
+  const chs = getChapters();
+  const idx = chs.findIndex(c => c.id === selectedId);
+  if (idx < 0) return;
+  chs[idx].title = document.getElementById('chapter-title').value;
+  chs[idx].body  = document.getElementById('chapter-body').value;
+  saveChapters(chs);
+  isDirty = false;
+  renderSidebar();
+  showToast('Saved ✓');
+}
+
+function publishChapter() {
+  saveChapter();
+  const chs = getChapters();
+  const idx = chs.findIndex(c => c.id === selectedId);
+  if (idx < 0) return;
+  chs[idx].published = true;
+  saveChapters(chs);
+  updateStatusBadge(true);
+  renderSidebar();
+  showToast('Chapter published ✓');
+}
+
+function unpublishChapter() {
+  const chs = getChapters();
+  const idx = chs.findIndex(c => c.id === selectedId);
+  if (idx < 0) return;
+  chs[idx].published = false;
+  saveChapters(chs);
+  updateStatusBadge(false);
+  renderSidebar();
+  showToast('Chapter unpublished');
+}
+
+function deleteChapter() {
+  if (!confirm('Permanently delete this chapter?')) return;
+  let chs = getChapters().filter(c => c.id !== selectedId);
+  saveChapters(chs);
+  selectedId = null;
+  isDirty    = false;
+  hideAllPanes();
+  document.getElementById('empty-state-pane').style.display = 'flex';
+  renderSidebar();
+  showToast('Chapter deleted');
+}
+
+function moveChapter(dir) {
+  let chs = getChapters().sort((a,b) => a.order - b.order);
+  const idx = chs.findIndex(c => c.id === selectedId);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= chs.length) return;
+  [chs[idx].order, chs[swapIdx].order] = [chs[swapIdx].order, chs[idx].order];
+  saveChapters(chs);
+  renderSidebar();
+  showToast('Order updated');
+}
+
+/* ── SETTINGS ── */
+function openSettings() {
+  selectedId = null;
+  hideAllPanes();
+  document.getElementById('settings-pane').classList.remove('hidden');
+  document.getElementById('settings-nav').classList.add('active');
+
+  const meta = getMeta();
+  document.getElementById('setting-title').value = meta.title || '';
+  document.getElementById('setting-desc').value  = meta.desc  || '';
+  document.getElementById('setting-pw').value    = '';
+  renderSidebar();
+}
+
+function saveSettings() {
+  const title = document.getElementById('setting-title').value.trim();
+  const desc  = document.getElementById('setting-desc').value.trim();
+  const pw    = document.getElementById('setting-pw').value;
+  saveMeta({ title: title || 'My Book', desc });
+  if (pw) localStorage.setItem(PW_KEY, pw);
+  showToast('Settings saved ✓');
+}
+
+/* ── UI HELPERS ── */
+function updateStatusBadge(published) {
+  const badge = document.getElementById('status-badge');
+  const pub   = document.getElementById('publish-btn');
+  const unpub = document.getElementById('unpublish-btn');
+  if (published) {
+    badge.textContent = 'Published';
+    badge.className   = 'status-badge published';
+    pub.style.display   = 'none';
+    unpub.classList.remove('hidden');
+  } else {
+    badge.textContent = 'Draft';
+    badge.className   = 'status-badge draft';
+    pub.style.display   = '';
+    unpub.classList.add('hidden');
+  }
+}
+
+function markDirty() { isDirty = true; }
+
+function updateWordCount() {
+  const text = document.getElementById('chapter-body').value;
+  const n = text.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('word-count-label').textContent = n.toLocaleString() + ' words';
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Warn on accidental navigation while writing
+window.addEventListener('beforeunload', e => {
+  if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+</script>
+</body>
+</html>
